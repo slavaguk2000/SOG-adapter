@@ -37,6 +37,7 @@ def init_socket():
     sock.connect((address, 8536))
     # print(sock)
     send_chords_frame()
+    print('connect')
     
     
 def get_text(set_text, set_packet):
@@ -105,9 +106,8 @@ def ping_loop():
     while work:
         try:
             send_chords_frame()
-            print('ping')
         except:
-            pass
+            print('disconnect')
         sleep(5)
         
 
