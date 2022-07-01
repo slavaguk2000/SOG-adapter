@@ -34,8 +34,6 @@ class AdapterCore():
             except:
                 pass
         print(len(self.sockets))
-            
-        # print(packet)
 
     def start_accepting(self):
         self.serverSocket = socket()

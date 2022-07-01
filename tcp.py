@@ -108,7 +108,7 @@ def ping_loop():
             send_chords_frame()
         except:
             print('disconnect')
-        sleep(5)
+        sleep(20)
         
 
 def start_ping_thread():
