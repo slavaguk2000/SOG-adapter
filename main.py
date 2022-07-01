@@ -5,12 +5,13 @@ from socket import socket
 import threading
 
 class AdapterCore(): 
-    packet = b'd\x01\x00\x00\x00\x00'
+    packet = b'\x00\x00\x00\x00\x00\x00\x00\x00'
     sockets = []
     serverSocket = 0
     work = True
 
     def __init__(self):
+        self.packet = b'\x00\x00\x00\x00\x00\x00\x00\x00'
         start_socket(self)
         thread = threading.Thread(target=self.start_accepting)
         thread.start()
@@ -20,6 +21,7 @@ class AdapterCore():
 
     def setup_packet(self, packet):
         self.packet = packet
+        # print(packet)
         invalidSockects = []
         for sock in self.sockets:
             try:
