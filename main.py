@@ -31,6 +31,7 @@ class AdapterCore():
         for invSock in invalidSockects:
             try:
                 self.sockets.remove(invSock)
+                invSock.close()
             except:
                 pass
         print(len(self.sockets))
