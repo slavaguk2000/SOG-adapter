@@ -72,6 +72,7 @@ def get_text(set_text, set_packet):
                 # print(flag)
                 if (flag == 1):
                     packetPart = sock.recv(16 * 1024)
+                    print(packetPart)
                     data += packetPart
                     packet += packetPart
                     data, text = get_string(data)
@@ -79,7 +80,7 @@ def get_text(set_text, set_packet):
                     data, title = get_string(data)
                     # print(title)
                     # print(set_text)
-                    set_text(text, title)
+                    set_text(text, title, packet)
                 elif (flag == 0): 
                     packetPart = sock.recv(8)
                     data += packetPart

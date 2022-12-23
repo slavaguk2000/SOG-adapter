@@ -6,50 +6,73 @@ import threading
 
 class AdapterCore(): 
     packet = b'\x00\x00\x00\x00\x00\x00\x00\x00'
-    sockets = []
-    serverSocket = 0
+    chord_sockets = []
+    text_sockets = []
+    server_socket = 0
     work = True
 
     def __init__(self):
         self.packet = b'\x00\x00\x00\x00\x00\x00\x00\x00'
+        self.textPacket = b'\x00\x00\x00\x00\x00\x00\x00\x00'
         start_socket(self)
         thread = threading.Thread(target=self.start_accepting)
         thread.start()
 
-    def setup_text(self, text, title):
+    def setup_text(self, text, title, text_packet):
         print(text, title)
+        # self.textPacket = text_packet
+        # invalid_sockects = []
+        # for sock in self.text_sockets:
+        #     try:
+        #         sock.send(text_packet)
+        #     except:
+        #         invalid_sockects.append(sock)
+        # for invSock in invalid_sockects:
+        #     try:
+        #         self.text_sockets.remove(invSock)
+        #         invSock.close()
+        #     except:
+        #         pass
+        # print(len(self.text_sockets))
 
     def setup_packet(self, packet):
         self.packet = packet
         # print(packet)
-        invalidSockects = []
-        for sock in self.sockets:
+        invalid_sockects = []
+        for sock in self.chord_sockets:
             try:
                 sock.send(packet)
             except:
-                invalidSockects.append(sock)   
-        for invSock in invalidSockects:
+                invalid_sockects.append(sock)
+        for invSock in invalid_sockects:
             try:
-                self.sockets.remove(invSock)
+                self.chord_sockets.remove(invSock)
                 invSock.close()
             except:
                 pass
-        print(len(self.sockets))
+        print(len(self.chord_sockets))
 
     def start_accepting(self):
-        self.serverSocket = socket()
-        self.serverSocket.bind(('', 8536))
-        self.serverSocket.listen(10)
+        self.server_socket = socket()
+        self.server_socket.bind(('', 8536))
+        self.server_socket.listen(10)
         while self.work:
             try:
-                s, addr = self.serverSocket.accept()
+                s, addr = self.server_socket.accept()
                 print('Connect: ',addr)
                 firstPacket = s.recv(2)
                 if firstPacket == b'd\x01':
                     if (len(self.packet)):
                         try:
                             s.send(self.packet)
-                            self.sockets.append(s)
+                            self.chprdsSockets.append(s)
+                        except:
+                            pass
+                if firstPacket == b'd\x00':
+                    if (len(self.textPacket)):
+                        try:
+                            s.send(self.textPacket)
+                            self.chprdsSockets.append(s)
                         except:
                             pass
             except:
@@ -57,8 +80,8 @@ class AdapterCore():
 
     def end(self):
         self.work = False
-        if (self.serverSocket):
-            self.serverSocket.close()
+        if (self.server_socket):
+            self.server_socket.close()
 
 
 def main():
