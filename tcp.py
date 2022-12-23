@@ -29,6 +29,15 @@ def send_chords_frame():
     sock.send(frame)
     # print('Success')
 
+def send_text_frame():
+    global sock
+    frame = bytearray()
+    frame.append(100)
+    frame.append(0)
+    # print(frame)
+    sock.send(frame)
+    # print('Success')
+
 def init_socket():
     global sock
     address = sys.argv[-1]
@@ -36,7 +45,8 @@ def init_socket():
     sock = socket.socket()
     sock.connect((address, 8536))
     # print(sock)
-    send_chords_frame()
+    # send_chords_frame()
+    send_text_frame()
     print('connect')
     
     
