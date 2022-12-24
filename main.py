@@ -57,15 +57,15 @@ class AdapterCore:
             try:
                 s, addr = self.server_socket.accept()
                 print('Connect: ',addr)
-                firstPacket = s.recv(2)
-                if firstPacket == b'd\x01':
-                    if (len(self.chord_packet)):
+                first_packet = s.recv(2)
+                if first_packet == b'd\x01':
+                    if len(self.chord_packet):
                         try:
                             s.send(self.chord_packet)
                             self.chord_sockets.append(s)
                         except:
                             pass
-                if firstPacket == b'd\x00':
+                if first_packet == b'd\x00':
                     if len(self.text_packet):
                         try:
                             s.send(self.text_packet)
