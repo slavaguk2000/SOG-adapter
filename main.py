@@ -1,56 +1,53 @@
 import math
 import sys  # sys нужен для передачи argv в QApplication
-from tcp import start_socket, stop_socket
+from tcp import start_socket, stop_socket, TcpConnection
 from socket import socket
 import threading
 
-class AdapterCore(): 
-    packet = b'\x00\x00\x00\x00\x00\x00\x00\x00'
+
+class AdapterCore:
     chord_sockets = []
     text_sockets = []
     server_socket = 0
     work = True
 
-    def __init__(self):
-        self.packet = b'\x00\x00\x00\x00\x00\x00\x00\x00'
-        self.textPacket = b'\x00\x00\x00\x00\x00\x00\x00\x00'
-        start_socket(self)
-        thread = threading.Thread(target=self.start_accepting)
-        thread.start()
+    def set_text_packet(self, packet):
+        self.text_packet = packet
+        invalid_sockets = []
+        for sock in self.text_sockets:
+            try:
+                sock.send(packet)
+            except:
+                invalid_sockets.append(sock)
+        for invSock in invalid_sockets:
+            try:
+                self.text_sockets.remove(invSock)
+                invSock.close()
+            except:
+                pass
 
-    def setup_text(self, text, title, text_packet):
-        print(text, title)
-        # self.textPacket = text_packet
-        # invalid_sockects = []
-        # for sock in self.text_sockets:
-        #     try:
-        #         sock.send(text_packet)
-        #     except:
-        #         invalid_sockects.append(sock)
-        # for invSock in invalid_sockects:
-        #     try:
-        #         self.text_sockets.remove(invSock)
-        #         invSock.close()
-        #     except:
-        #         pass
-        # print(len(self.text_sockets))
-
-    def setup_packet(self, packet):
-        self.packet = packet
-        # print(packet)
-        invalid_sockects = []
+    def set_chords_packet(self, packet):
+        self.chord_packet = packet
+        invalid_sockets = []
         for sock in self.chord_sockets:
             try:
                 sock.send(packet)
             except:
-                invalid_sockects.append(sock)
-        for invSock in invalid_sockects:
+                invalid_sockets.append(sock)
+        for invSock in invalid_sockets:
             try:
                 self.chord_sockets.remove(invSock)
                 invSock.close()
             except:
                 pass
-        print(len(self.chord_sockets))
+
+    def __init__(self):
+        self.chord_packet = b'\x00\x00\x00\x00\x00\x00\x00\x00'
+        self.text_packet = b'\x00\x00\x00\x00\x00\x00\x00\x00'
+        TcpConnection(True, self.set_text_packet)
+        TcpConnection(False, self.set_chords_packet)
+        thread = threading.Thread(target=self.start_accepting)
+        thread.start()
 
     def start_accepting(self):
         self.server_socket = socket()
@@ -62,17 +59,17 @@ class AdapterCore():
                 print('Connect: ',addr)
                 firstPacket = s.recv(2)
                 if firstPacket == b'd\x01':
-                    if (len(self.packet)):
+                    if (len(self.chord_packet)):
                         try:
-                            s.send(self.packet)
-                            self.chprdsSockets.append(s)
+                            s.send(self.chord_packet)
+                            self.chord_sockets.append(s)
                         except:
                             pass
                 if firstPacket == b'd\x00':
-                    if (len(self.textPacket)):
+                    if len(self.text_packet):
                         try:
-                            s.send(self.textPacket)
-                            self.chprdsSockets.append(s)
+                            s.send(self.text_packet)
+                            self.chord_sockets.append(s)
                         except:
                             pass
             except:
@@ -80,14 +77,14 @@ class AdapterCore():
 
     def end(self):
         self.work = False
-        if (self.server_socket):
+        if self.server_socket:
             self.server_socket.close()
 
 
 def main():
     exit = 'a'
     adapter = AdapterCore()
-    while(exit != 'e'):
+    while exit != 'e':
         exit = input()
     adapter.end()
 
