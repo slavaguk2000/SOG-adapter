@@ -1,6 +1,4 @@
-import math
-import sys  # sys нужен для передачи argv в QApplication
-from tcp import start_socket, stop_socket, TcpConnection
+from tcp import TcpConnection
 from socket import socket
 import threading
 
@@ -51,7 +49,7 @@ class AdapterCore:
 
     def start_accepting(self):
         self.server_socket = socket()
-        self.server_socket.bind(('', 8536))
+        self.server_socket.bind(('', 8537))
         self.server_socket.listen(10)
         while self.work:
             try:
@@ -69,7 +67,7 @@ class AdapterCore:
                     if len(self.text_packet):
                         try:
                             s.send(self.text_packet)
-                            self.chord_sockets.append(s)
+                            self.text_sockets.append(s)
                         except:
                             pass
             except:
