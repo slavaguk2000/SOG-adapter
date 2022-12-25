@@ -1,11 +1,34 @@
 from tcp import TcpConnection
 from socket import socket
 import threading
+from keyboard import press, KEY_DOWN
+
+
+class Listener:
+    def __init__(self, sock):
+        self.sock = sock
+        self.work = True
+        thread = threading.Thread(target=self.listen)
+        thread.start()
+
+    def listen(self):
+        while self.work:
+            try:
+                answer = self.sock.recv(1024)
+                print(answer)
+                if answer.decode('utf-8') == 'down':
+                    press(KEY_DOWN)
+            except:
+                pass
+
+    def stop(self):
+        self.work = False
 
 
 class AdapterCore:
     chord_sockets = []
     text_sockets = []
+    listeners = dict()
     server_socket = 0
     work = True
 
@@ -20,6 +43,7 @@ class AdapterCore:
         for invSock in invalid_sockets:
             try:
                 self.text_sockets.remove(invSock)
+                self.listeners[invSock].stop()
                 invSock.close()
             except:
                 pass
@@ -68,6 +92,7 @@ class AdapterCore:
                         try:
                             s.send(self.text_packet)
                             self.text_sockets.append(s)
+                            self.listeners[s] = Listener(s)
                         except:
                             pass
             except:
